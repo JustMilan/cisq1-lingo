@@ -1,9 +1,8 @@
 package nl.hu.cisq1.lingo.trainer.domain;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidCharacterException;
+import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidGuessLengthException;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -11,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static nl.hu.cisq1.lingo.trainer.domain.Mark.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -23,14 +23,14 @@ class FeedbackTest {
         @Test
         @DisplayName("Word is guessed if all letters are correct")
         void wordIsGuessed() {
-            Feedback feedback = new Feedback(List.of(Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
+            Feedback feedback = new Feedback(List.of(CORRECT, CORRECT, CORRECT, CORRECT, CORRECT), "atmpt");
             assertTrue(feedback.isWordGuessed());
         }
 
         @Test
         @DisplayName("Word is not guessed if not all letters are correct")
         void wordIsNotGuessed() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
+            Feedback feedback = new Feedback(List.of(Mark.PRESENT, CORRECT, CORRECT, CORRECT, CORRECT), "atmpt");
             assertFalse(feedback.isWordGuessed());
         }
     }
@@ -42,15 +42,20 @@ class FeedbackTest {
         @Test
         @DisplayName("Guess is invalid when one or more characters are invalid")
         void guessIsInvalid() {
-            Feedback feedback = new Feedback(List.of(Mark.INVALID, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
-            assertFalse(feedback.isGuessValid());
+            assertThrows(InvalidCharacterException.class, () -> new Feedback(List.of(INVALID, CORRECT, CORRECT, CORRECT, CORRECT), "atmpt"));
         }
 
         @Test
         @DisplayName("Guess is valid when there are no invalid characters")
         void guessIsNotInvalid() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
-            assertTrue(feedback.isGuessValid());
+            Feedback feedback = new Feedback(List.of(Mark.PRESENT, CORRECT, CORRECT, CORRECT, CORRECT), "atmpt");
+            assertTrue(feedback.isGuessValid(feedback.getMarks()));
+        }
+
+        @Test
+        @DisplayName("Constructor will throw exception if guess doens't match marklist size")
+        void guessLengthNotValid() {
+            assertThrows(InvalidGuessLengthException.class, () -> new Feedback(List.of(Mark.PRESENT, CORRECT, CORRECT, CORRECT, CORRECT), "attempt"));
         }
     }
 
@@ -61,31 +66,24 @@ class FeedbackTest {
     class FeedbackRepresentation {
 
         @Test
-        @DisplayName("Feedback is presented in a Treemap")
-        void feedbackInTreemap() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
-            assertEquals("{0={k=CORRECT}, 1={e=CORRECT}, 2={n=ABSENT}, 3={e=CORRECT}, 4={l=CORRECT}}", feedback.prepareFeedback("kerel", "kenel").toString());
-        }
-
-        @Test
-        @DisplayName("Feedback is correct with multiple present characters")
-        void feedbackMultipleChars() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
-            assertEquals("{0={t=CORRECT}, 1={i=CORRECT}, 2={v=CORRECT}, 3={o=CORRECT}, 4={l=CORRECT}, 5={o=ABSENT}}", feedback.prepareFeedback("tivoli", "tivolo").toString());
-            assertEquals("{0={t=CORRECT}, 1={o=ABSENT}, 2={v=CORRECT}, 3={o=CORRECT}, 4={l=CORRECT}, 5={o=ABSENT}}", feedback.prepareFeedback("tivoli", "tovolo").toString());
+        @DisplayName("Set marks")
+        void setMarks() {
+            Feedback feedback = new Feedback(List.of(CORRECT, CORRECT, CORRECT, CORRECT, CORRECT, CORRECT, CORRECT), "attempp");
+            feedback.setMarks(List.of(ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, CORRECT));
+            assertEquals(List.of(ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, CORRECT), feedback.getMarks());
         }
 
         @Test
         @DisplayName("Feedback is presented in a arrayList of marks")
         void feedbackInMarkArray() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
-            assertEquals(List.of(Mark.CORRECT, Mark.CORRECT, Mark.ABSENT, Mark.CORRECT, Mark.CORRECT), feedback.toMarkArray(feedback.prepareFeedback("kerel", "kenel")));
+            Feedback feedback = new Feedback(List.of(Mark.PRESENT, CORRECT, CORRECT, CORRECT, CORRECT), "kenel");
+            assertEquals(List.of(CORRECT, CORRECT, ABSENT, CORRECT, CORRECT), feedback.toMarkArray(feedback.prepareFeedback("kerel", "kenel")));
         }
 
         @Test
-        @DisplayName("56")
+        @DisplayName("Feedback is is presented in a list of chars")
         void feedbackcharArrayList() {
-            Feedback feedback = new Feedback(List.of(Mark.PRESENT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT), null);
+            Feedback feedback = new Feedback(List.of(Mark.PRESENT, CORRECT, CORRECT, CORRECT, CORRECT), "kenel");
             assertEquals(List.of('k', 'e', 'n', 'e', 'l'), feedback.toCharArrayList(feedback.prepareFeedback("kerel", "kenel")));
         }
 
@@ -94,34 +92,67 @@ class FeedbackTest {
         @DisplayName("Show the right chars when giving a hint")
         void giveHint(String word, List<Mark> marks, Hint previousHint, Hint newHint) {
             Feedback feedback = new Feedback(marks, "Droplul");
-            assertEquals(newHint.getHint(), feedback.giveHint(previousHint, word));
+            assertEquals(newHint.getHint(), feedback.giveHint(previousHint, word).getHint());
+        }
+
+        @ParameterizedTest
+        @MethodSource("giveFeedbackExamples")
+        @DisplayName("Feedback is correct with multiple present characters")
+        void feedbackMultipleChars(List<Mark> expected, List<Mark> actual) {
+            assertEquals(expected, actual);
         }
 
         private Stream<Arguments> hintExamples() {
             return Stream.of(
                     Arguments.of(
                             "droplul",
-                            List.of(Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT, Mark.CORRECT),
+                            List.of(CORRECT, CORRECT, CORRECT, CORRECT, CORRECT, CORRECT, CORRECT),
                             new Hint(List.of('.', '.', '.', '.', '.', '.', '.')),
                             new Hint(List.of('d', 'r', 'o', 'p', 'l', 'u', 'l'))),
 
                     Arguments.of(
                             "droplul",
-                            List.of(Mark.CORRECT, Mark.PRESENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT),
+                            List.of(CORRECT, Mark.PRESENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT),
                             new Hint(List.of('.', '.', '.', '.', '.', '.', '.')),
                             new Hint(List.of('d', '+', '-', '-', '-', '-', '-'))),
 
                     Arguments.of(
                             "droplul",
-                            List.of(Mark.CORRECT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT),
+                            List.of(CORRECT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT),
                             new Hint(List.of('.', 'e', '.', '.', '.', '.', '.')),
                             new Hint(List.of('d', '-', '-', '-', '-', '-', '-'))),
 
                     Arguments.of(
                             "droplul",
-                            List.of(Mark.CORRECT, Mark.PRESENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT, Mark.ABSENT),
+                            List.of(CORRECT, Mark.PRESENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT),
                             new Hint(List.of('.', 'o', '.', '.', '.', '.', '.')),
-                            new Hint(List.of('d', '+', '-', '-', '-', '-', '-')))
+                            new Hint(List.of('d', '+', '-', '-', '-', '-', '-'))),
+
+                    Arguments.of(
+                            "droplul",
+                            List.of(CORRECT, Mark.PRESENT, ABSENT, ABSENT, ABSENT, ABSENT, Mark.PRESENT),
+                            new Hint(List.of('.', 'o', '.', '.', '.', '.', '.')),
+                            new Hint(List.of('d', '+', '-', '-', '-', '-', '+')))
+            );
+        }
+
+        private Stream<Arguments> giveFeedbackExamples() {
+            return Stream.of(
+                    Arguments.of(
+                            List.of(CORRECT, CORRECT, CORRECT, CORRECT, CORRECT, ABSENT),
+                            new Feedback("tivolo").toMarkArray(new Feedback("tivolo").prepareFeedback("tivoli", "tivolo"))),
+
+                    Arguments.of(
+                            List.of(CORRECT, ABSENT, CORRECT, CORRECT, CORRECT, ABSENT),
+                            new Feedback("tovolo").toMarkArray(new Feedback("tovolo").prepareFeedback("tivoli", "tovolo"))),
+
+                    Arguments.of(
+                            List.of(CORRECT, ABSENT, ABSENT, CORRECT, CORRECT, PRESENT),
+                            new Feedback("torolv").toMarkArray(new Feedback("torolv").prepareFeedback("tivoli", "torolv"))),
+
+                    Arguments.of(
+                            List.of(CORRECT, PRESENT, CORRECT, PRESENT, CORRECT, ABSENT),
+                            new Feedback("tovilo").toMarkArray(new Feedback("tovilo").prepareFeedback("tivoli", "tovilo")))
             );
         }
     }

@@ -1,101 +1,152 @@
 package nl.hu.cisq1.lingo.trainer.domain;
 
-import java.lang.reflect.Array;
+import nl.hu.cisq1.lingo.trainer.domain.character.MarkedLingoCharacter;
+import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidCharacterException;
+import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidGuessLengthException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+/**
+ * The Feedback class provides feedback in a treemap<index of char, MarkedLingoCharacter> format.
+ * The TreeMap is convertible to a list of chars and a list of chars.
+ */
 
 public class Feedback {
     private String attempt;
-    private final List<Mark> marks;
+    private List<Mark> marks;
 
-    public Feedback(List<Mark> marks, String attempt) {
+    public Feedback(String attempt) {
         this.attempt = attempt;
-        this.marks = marks;
+        this.marks = new ArrayList<>();
     }
 
-    // is the list is empty 'stream' will be true.
+    public Feedback(List<Mark> marks, String attempt) {
+        if (isGuessValid(marks)) {
+            this.marks = marks;
+        } else {
+            throw new InvalidCharacterException();
+        }
+
+        if (attempt.length() == marks.size()) {
+            this.attempt = attempt;
+        } else {
+            throw new InvalidGuessLengthException();
+        }
+    }
+
+    /* is the list is empty 'stream' will be true. */
     public boolean isWordGuessed() {
         return !marks.isEmpty() && this.marks.stream().allMatch(mark -> mark == Mark.CORRECT);
     }
 
-    public boolean isGuessValid() {
+    public boolean isGuessValid(List<Mark> marks) {
         return !marks.isEmpty() && !marks.contains(Mark.INVALID);
     }
 
-    // compares the chars of the char arrays from both parameters and puts the index as key
-    // and the char with the corresponding mark in as value wrapped in another TreeMap.
-    public TreeMap<Integer, TreeMap<Character, Mark>> prepareFeedback(String word, String guess) {
-        char[] cWord = word.toCharArray();
-        char[] cGuess = guess.toCharArray();
-        TreeMap<Integer, TreeMap<Character, Mark>> feedback = new TreeMap<>();
-        for (int i = 0; i < cWord.length; i++) {
-            TreeMap<Character, Mark> treeMap = new TreeMap<>();
-            if (cWord[i] == cGuess[i]) {
-                treeMap.put(cGuess[i], Mark.CORRECT);
-                feedback.put(i, treeMap);
+    private boolean isPresent(char c, char[] cWord) {
+        for (char value : cWord) {
+            if (c == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int charOccuences(char c, char[] wordArray) {
+        int counter = 0;
+        for (char value : wordArray) {
+            if (value == c) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    private boolean occurenceReached(TreeMap<Integer, MarkedLingoCharacter> guess, char c, int charOccurence) {
+        int inGuess = 0;
+        for (int i = 0; i < guess.size(); i++) {
+            if (guess.get(i).getMark() == null) {
+                continue;
+            }
+            if (c == guess.get(i).getCharacter()) {
+                inGuess++;
+            }
+        }
+
+        if (charOccurence == 1 && inGuess == 1) {
+            return false;
+        }
+
+        return inGuess >= charOccurence;
+    }
+
+    public TreeMap<Integer, MarkedLingoCharacter> prepareFeedback(String actual, String guess) {
+        char[] actualArray = actual.toCharArray();
+        char[] guessArray = guess.toCharArray();
+        TreeMap<Integer, MarkedLingoCharacter> feedback = new TreeMap<>();
+
+        for (int i = 0; i < actualArray.length; i++) {
+            if (actualArray[i] == guessArray[i]) {
+                feedback.put(i, new MarkedLingoCharacter(guessArray[i], Mark.CORRECT));
             } else {
-                for (char c : cWord) {
-                    if (c == cGuess[i]) {
-                        treeMap.put(cGuess[i], Mark.PRESENT);
-                        feedback.put(i, treeMap);
-                        break;
-                    }
+                feedback.put(i, new MarkedLingoCharacter(guessArray[i]));
+            }
+        }
+
+        for (int i = 0; i < actualArray.length; i++) {
+            if (feedback.get(i).getMark() != Mark.CORRECT) {
+                feedback.put(i, new MarkedLingoCharacter(guessArray[i], Mark.TURN));
+                boolean present = isPresent(guessArray[i], actualArray);
+                int charOccurence = charOccuences(guessArray[i], actualArray);
+                boolean occurenceReached = occurenceReached(feedback, guessArray[i], charOccurence);
+
+                if (charOccurence == 0 || !present || occurenceReached) {
+                    feedback.put(i, new MarkedLingoCharacter(guessArray[i], Mark.ABSENT));
+                    continue;
                 }
-                treeMap.put(cGuess[i], Mark.ABSENT);
-                feedback.put(i, treeMap);
+
+                feedback.put(i, new MarkedLingoCharacter(guessArray[i], Mark.PRESENT));
+
             }
         }
         return feedback;
     }
 
-    // Converts the Treemap from the prepareFeedback method to an ArrayList that only consists of Marks.
-    public ArrayList<Mark> toMarkArray(TreeMap<Integer, TreeMap<Character, Mark>> feedback) {
+    /* Converts the Treemap from the prepareFeedback method to an ArrayList that only consists of Marks. */
+    public ArrayList<Mark> toMarkArray(TreeMap<Integer, MarkedLingoCharacter> feedback) {
         ArrayList<Mark> marksList = new ArrayList<>();
-        feedback.values().forEach((i) -> marksList.addAll(i.values()));
+        feedback.values().forEach(i -> marksList.add(i.getMark()));
         return marksList;
     }
 
-    public ArrayList<Character> toCharArrayList(TreeMap<Integer, TreeMap<Character, Mark>> feedback) {
+    public ArrayList<Character> toCharArrayList(TreeMap<Integer, MarkedLingoCharacter> feedback) {
         ArrayList<Character> chars = new ArrayList<>();
-        feedback.values().forEach(i -> chars.addAll(i.keySet()));
+        feedback.values().forEach(i -> chars.add(i.getCharacter()));
         return chars;
     }
 
-//    public Hint giveHint(Hint previousHint, String word) {
-//        char[] cWord = word.toCharArray();
-//        ArrayList<Character> hint = new ArrayList<>();
-//        for (int i = 0; i < this.marks.size(); i++) {
-//            switch (this.marks.get(i)) {
-//                case CORRECT:
-//                    hint.add(cWord[i]);
-//                case PRESENT:
-//                    hint.add('+');
-//                default:
-//                    hint.add('-');
-//                    break;
-//            }
-//            previousHint.setHint(hint);
-//        }
-//        return previousHint;
-//    }
-
-    public List<Character> giveHint(Hint previousHint, String word) {
+    public Hint giveHint(Hint previousHint, String word) {
         ArrayList<Character> hint = new ArrayList<>();
         char[] cWord = word.toCharArray();
         for (int i = 0; i < cWord.length; i++) {
             switch (this.marks.get(i)) {
-                case CORRECT:
-                    hint.add(cWord[i]);
-                    continue;
-                case PRESENT:
-                    hint.add('+');
-                    continue;
-                case ABSENT:
-                    hint.add('-');
+                case CORRECT -> hint.add(cWord[i]);
+                case PRESENT -> hint.add('+');
+                case ABSENT -> hint.add('-');
             }
         }
         previousHint.setHint(hint);
-        return previousHint.getHint();
+        return previousHint;
+    }
+
+    public List<Mark> getMarks() {
+        return marks;
+    }
+
+    public void setMarks(List<Mark> marks) {
+        this.marks = marks;
     }
 }
