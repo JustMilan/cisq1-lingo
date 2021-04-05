@@ -18,12 +18,14 @@ public class Game {
     public Game() {
         this.rounds = new ArrayList<>();
         this.gameState = GameState.CONTINUE;
+        this.points = 0;
     }
 
     public Game(int id) {
         this.id = id;
         this.rounds = new ArrayList<>();
         this.gameState = GameState.CONTINUE;
+        this.points = 0;
     }
 
     public void newRound(String word) {
@@ -34,6 +36,7 @@ public class Game {
         if (this.round != null) {
             throw new ActiveRoundException();
         }
+        this.gameState = GameState.CONTINUE;
         this.rounds.add(new Round(word));
         this.round = this.rounds.get(this.rounds.size() - 1);
     }
@@ -58,9 +61,13 @@ public class Game {
     }
 
     public void calculateScore() {
-        if (this.gameState == GameState.WON) {
-            this.points += 5 * (5 - this.round.getGuesses().size()) + 5;
+        int score = 0;
+        for (Round r : this.rounds) {
+            if (r.getGameState() == GameState.WON) {
+                score += 5 * (5 - r.getGuesses().size()) + 5;
+            }
         }
+        this.points = score;
     }
 
     public int provideNextLenghtWord() {
@@ -75,9 +82,16 @@ public class Game {
     }
 
     public void endRound() {
-        this.rounds.add(this.round);
         calculateScore();
         this.gameState = this.checkGameState();
         this.round = null;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public int getPoints() {
+        return points;
     }
 }

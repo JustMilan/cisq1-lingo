@@ -36,20 +36,22 @@ public class Round {
             switch (this.gameState) {
                 case LOST -> throw new GameLostException();
                 case WON -> throw new RoundWonException();
-                case CONTINUE -> {
-                    this.guesses.add(attempt);
-                    Feedback feedback = new Feedback(guess);
-                    List<Mark> marks = feedback.toMarkArray(feedback.prepareFeedback(this.word, guess));
-                    feedback.setMarks(marks);
-                    feedbackList.add(feedback);
-                    determineState(feedback);
-                }
+                default -> handleValidGuess(attempt, guess);
             }
         }
     }
 
+    private void handleValidGuess(Guess attempt, String guess) {
+        this.guesses.add(attempt);
+        Feedback feedback = new Feedback(guess);
+        List<Mark> marks = feedback.toMarkArray(feedback.prepareFeedback(this.word, guess));
+        feedback.setMarks(marks);
+        feedbackList.add(feedback);
+        determineState(feedback);
+    }
+
     private void determineState() {
-        if (guesses.size() > 4 && gameState != GameState.WON) {
+        if (guesses.size() > 4) {
             this.gameState = GameState.LOST;
         } else {
             this.gameState = GameState.CONTINUE;
