@@ -1,7 +1,6 @@
 # CISQ1: Lingo Trainer
 
 [![Java CI](https://github.com/JustMilan/cisq1-lingo/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/JustMilan/cisq1-lingo/actions/workflows/build.yml)
-[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg)](https://sonarcloud.io/dashboard?id=JustMilan_cisq1-lingo)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=JustMilan_cisq1-lingo&metric=bugs)](https://sonarcloud.io/dashboard?id=JustMilan_cisq1-lingo)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=JustMilan_cisq1-lingo&metric=code_smells)](https://sonarcloud.io/dashboard?id=JustMilan_cisq1-lingo)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=JustMilan_cisq1-lingo&metric=coverage)](https://sonarcloud.io/dashboard?id=JustMilan_cisq1-lingo)
