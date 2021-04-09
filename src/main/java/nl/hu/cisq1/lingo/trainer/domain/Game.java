@@ -1,19 +1,30 @@
 package nl.hu.cisq1.lingo.trainer.domain;
 
+import lombok.SneakyThrows;
 import nl.hu.cisq1.lingo.trainer.domain.exception.ActiveRoundException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.GameLostException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.NoActiveRoundException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.RoundWonException;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Game {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Round round;
+
+    @OneToMany
+    private final List<Round> rounds;
+
+    @Column
     private int points;
     private GameState gameState;
-    private long id;
-    private Round round;
-    private final List<Round> rounds;
 
     public Game() {
         this.rounds = new ArrayList<>();
@@ -21,49 +32,54 @@ public class Game {
         this.points = 0;
     }
 
-    public Game(int id) {
-        this.id = id;
-        this.rounds = new ArrayList<>();
-        this.gameState = GameState.CONTINUE;
-        this.points = 0;
-    }
-
+    @SneakyThrows
     public void newRound(String word) {
-        if (this.gameState.equals(GameState.LOST)) {
-            throw new GameLostException();
-        }
-
-        if (this.round != null) {
-            throw new ActiveRoundException();
-        }
-        this.gameState = GameState.CONTINUE;
-        this.rounds.add(new Round(word));
-        this.round = this.rounds.get(this.rounds.size() - 1);
-    }
-
-    public void makeGuess(String guess) {
-        if (this.gameState == GameState.LOST) {
-            throw new GameLostException();
-        } else if (this.gameState == GameState.WON) {
-            throw new RoundWonException();
-        } else {
-            this.round.makeGuess(guess);
-            this.gameState = checkGameState();
-            this.gameState = this.round.getGameState();
-            if (this.gameState == GameState.LOST) {
-                throw new GameLostException();
+        switch (this.gameState) {
+            case LOST -> throw new GameLostException();
+            case WON -> {
+                endRound();
+                this.round = new Round(word);
+                this.gameState = GameState.CONTINUE;
+            }
+            default -> {
+                if (this.round != null) {
+                    throw new ActiveRoundException();
+                } else {
+                    this.round = new Round(word);
+                    this.gameState = GameState.CONTINUE;
+                }
             }
         }
     }
 
-    public GameState checkGameState() {
-        return this.round.getGameState();
+    public void makeGuess(String guess) {
+        handleGameState();
+        this.round.makeGuess(guess);
+        checkGameState();
+    }
+
+    @SneakyThrows
+    void handleGameState() {
+        switch (this.gameState) {
+            case LOST -> {
+                endRound();
+                throw new GameLostException();
+            }
+            case WON -> {
+                endRound();
+                throw new RoundWonException();
+            }
+        }
+    }
+
+    public void checkGameState() {
+        this.gameState = this.round.getGameState();
     }
 
     public void calculateScore() {
         int score = 0;
         for (Round r : this.rounds) {
-            if (r.getGameState() == GameState.WON) {
+            if (r != null && r.getGameState() == GameState.WON) {
                 score += 5 * (5 - r.getGuesses().size()) + 5;
             }
         }
@@ -82,16 +98,24 @@ public class Game {
     }
 
     public void endRound() {
-        calculateScore();
-        this.gameState = this.checkGameState();
+        this.rounds.add(round);
         this.round = null;
-    }
-
-    public long getId() {
-        return id;
+        calculateScore();
     }
 
     public int getPoints() {
         return points;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public Round getRound() {
+        return round;
     }
 }
