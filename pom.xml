@@ -126,16 +126,19 @@
                                     <element>BUNDLE</element>
                                     <limits>
                                         <limit>
+                                            <excludes>/nl.hu.cisq1.lingo.trainer.presentation/</excludes>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
+                                            <excludes>/nl.hu.cisq1.lingo.trainer.presentation/</excludes>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
+                                            <excludes>/nl.hu.cisq1.lingo.trainer.presentation/</excludes>
                                             <counter>CLASS</counter>
                                             <value>MISSEDCOUNT</value>
                                             <maximum>0</maximum>
