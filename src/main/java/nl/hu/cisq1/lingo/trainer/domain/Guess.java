@@ -2,8 +2,19 @@ package nl.hu.cisq1.lingo.trainer.domain;
 
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidCharacterException;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
 public class Guess {
-    private final String wordattempt;
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String wordattempt;
+
+    public Guess() {}
 
     public Guess(String wordattempt) {
         char[] chars = wordattempt.toCharArray();

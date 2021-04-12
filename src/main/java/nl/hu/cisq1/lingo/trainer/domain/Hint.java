@@ -2,12 +2,25 @@ package nl.hu.cisq1.lingo.trainer.domain;
 
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidListSizeException;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
 public class Hint {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ElementCollection
     private List<Character> hintChars;
+
+    public Hint() {
+    }
 
     public Hint(List<Character> hint) {
         this.hintChars = hint;
@@ -55,5 +68,9 @@ public class Hint {
 
         this.hintChars = charList;
         return charList;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

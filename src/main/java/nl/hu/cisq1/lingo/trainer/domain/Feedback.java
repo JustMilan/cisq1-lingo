@@ -4,6 +4,7 @@ import nl.hu.cisq1.lingo.trainer.domain.character.MarkedLingoCharacter;
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidCharacterException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.InvalidGuessLengthException;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -13,11 +14,19 @@ import java.util.TreeMap;
  * The Feedback class provides feedback in a treemap<index of char, MarkedLingoCharacter> format.
  * The TreeMap is convertible to a list of chars and a list of chars.
  */
-
+@Entity
 public class Feedback {
-    private final String attempt;
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    private String attempt;
+
+    @ElementCollection
     private List<Mark> marks;
 
+    public Feedback() {}
     public Feedback(String attempt) {
         this.attempt = attempt;
         this.marks = new ArrayList<>();
@@ -147,5 +156,9 @@ public class Feedback {
 
     public void setMarks(List<Mark> marks) {
         this.marks = marks;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -25,12 +25,6 @@ class GameTest {
     }
 
     @Test
-    @DisplayName("Constructor should not fail with only id argument")
-    void idConstructor() {
-        assertDoesNotThrow(() -> new Game(1));
-    }
-
-    @Test
     @DisplayName("new Round should throw ActiveRoundException when there's still an existing round")
     void activeRoundException() {
         Game game = new Game();
@@ -44,6 +38,7 @@ class GameTest {
     void gameLostException() {
         Game game = new Game();
         game.newRound("kerels");
+        game.makeGuess("kaasje");
         game.makeGuess("kaasje");
         game.makeGuess("kaasje");
         game.makeGuess("kaasje");
@@ -151,12 +146,12 @@ class GameTest {
         }
     }
 
-    @Test
-    @DisplayName("Id getter")
-    void getId() {
-        Game game = new Game(1);
-        assertEquals(1, game.getId());
-    }
+//    @Test
+//    @DisplayName("Id getter")
+//    void getId() {
+//        Game game = new Game();
+//        assertEquals(1, game.getId());
+//    }
 
     @ParameterizedTest
     @DisplayName("calculate score gives correct result")
