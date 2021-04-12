@@ -20,8 +20,7 @@
         <sonar.projectKey>JustMilan_cisq1-lingo</sonar.projectKey>
         <sonar.organization>justmilan</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.exclusions>nl/hu/cisq1/lingo/trainer/presentation/*</sonar.exclusions>
-        <sonar.exclusions>nl/hu/cisq1/lingo/trainer/presentation/**/*</sonar.exclusions>
+        <sonar.exclusions>**/nl/hu/cisq1/lingo/trainer/presentation/**/*</sonar.exclusions>
     </properties>
 
     <dependencies>
