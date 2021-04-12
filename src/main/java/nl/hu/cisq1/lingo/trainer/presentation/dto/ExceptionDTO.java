@@ -1,4 +1,4 @@
-package nl.hu.cisq1.lingo.trainer.presentation;
+package nl.hu.cisq1.lingo.trainer.presentation.dto;
 
 import nl.hu.cisq1.lingo.trainer.presentation.dto.ResponseDTO;
 

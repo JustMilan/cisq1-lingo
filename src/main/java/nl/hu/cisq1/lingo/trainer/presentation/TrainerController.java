@@ -2,10 +2,7 @@ package nl.hu.cisq1.lingo.trainer.presentation;
 
 import nl.hu.cisq1.lingo.trainer.application.TrainerService;
 import nl.hu.cisq1.lingo.trainer.domain.exception.*;
-import nl.hu.cisq1.lingo.trainer.presentation.dto.GameResponseDTO;
-import nl.hu.cisq1.lingo.trainer.presentation.dto.GuessDTO;
-import nl.hu.cisq1.lingo.trainer.presentation.dto.ResponseDTO;
-import nl.hu.cisq1.lingo.trainer.presentation.dto.TrainerResponseDTO;
+import nl.hu.cisq1.lingo.trainer.presentation.dto.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
