@@ -106,3 +106,55 @@ Secure installation processes should be implemented, including:
 * Let the framework do the authentication and authorization
 * Implement separation of concerns
 * Include authentication and authorization
+
+## A9:2017 Using Components with Known Vulnerabilities
+
+### Description here
+
+Components, such as libraries, frameworks, and other software modules, run with the same privileges as the application.
+If a vulnerable component is exploited, such an attack can facilitate serious data loss or server takeover. Applications
+and APIs using components with known vulnerabilities may undermine application defenses and enable various attacks and
+impacts.
+
+You are likely vulnerable if:
+
+* You do not know the versions of all components you use
+  (both client-side and server-side). This includes components you directly use as well as nested dependencies.
+* Software is vulnerable, unsupported, or out of date. This includes the OS, web/application server, database management
+  system (DBMS), applications, APIs and all components, runtime environments, and libraries.
+* If you do not scan for vulnerabilities regularly and subscribe to security bulletins related to the components you
+  use.
+* You do not fix or upgrade the underlying platform, frameworks, and dependencies in a risk-based, timely fashion. This
+  commonly happens in environments when patching is a monthly or quarterly task under change control, which leaves
+  organizations open to many days or months of unnecessary exposure to fixed vulnerabilities.
+* Software developers do not test the compatibility of updated, upgraded, or patched libraries.
+* You do not secure the components' configurations
+  (see [A6:2017 Security Misconfiguration](A6:2017 Security Misconfiguration)).
+
+### Risk assessment
+
+The system would be hackable because known vulnerabilities could be exploited on our system.
+
+### Counter-measures
+
+#### General
+
+There should be a patch management process in place to:
+
+* Remove unused dependencies, unnecessary features, components, files, and documentation.
+* Continuously inventory the versions of both client-side and server-side components (e.g. frameworks, libraries) and
+  their dependencies using tools like versions, DependencyCheck, retire.js, etc. Continuously monitor sources like CVE
+  and NVD for vulnerabilities in the components. Use software composition analysis tools to automate the process.
+  Subscribe to email alerts for security vulnerabilities related to components you use.
+* Only obtain components from official sources over secure links. Prefer signed packages to reduce the chance of
+  including a modified, malicious component.
+* Monitor for libraries and components that are unmaintained or do not create security patches for older versions. If
+  patching is not possible, consider deploying a virtual patch to monitor, detect, or protect against the discovered
+  issue. Every organization must ensure that there is an ongoing plan for monitoring, triaging, and applying updates or
+  configuration changes for the lifetime of the application or portfolio.
+
+#### In this project
+
+* Use a bot to check the dependencies used and bump when necessary.
+* Automate the process of dependency checking.
+* Check the validity of dependencies before using them.
