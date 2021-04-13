@@ -20,6 +20,10 @@
         <sonar.projectKey>JustMilan_cisq1-lingo</sonar.projectKey>
         <sonar.organization>justmilan</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+<<<<<<< Updated upstream
+=======
+        <sonar.excludes>src/main/java/nl/hu/cisq1/lingo/LingoApplication.java*</sonar.excludes>
+>>>>>>> Stashed changes
     </properties>
 
     <dependencies>
