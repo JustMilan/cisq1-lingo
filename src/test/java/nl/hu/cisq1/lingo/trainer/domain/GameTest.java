@@ -146,12 +146,18 @@ class GameTest {
         }
     }
 
-//    @Test
-//    @DisplayName("Id getter")
-//    void getId() {
-//        Game game = new Game();
-//        assertEquals(1, game.getId());
-//    }
+    @Test
+    @DisplayName("New round after game lost throws error")
+    void newRoundLost() {
+        Game game = new Game();
+        game.newRound("nootje");
+        game.makeGuess("neetjo");
+        game.makeGuess("neetjo");
+        game.makeGuess("neetjo");
+        game.makeGuess("neetjo");
+        game.makeGuess("neetjo");
+        assertThrows(GameLostException.class, () -> game.newRound("nootjes"));
+    }
 
     @ParameterizedTest
     @DisplayName("calculate score gives correct result")
