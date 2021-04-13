@@ -36,20 +36,24 @@ public class Game {
     public void newRound(String word) {
         switch (this.gameState) {
             case LOST -> throw new GameLostException();
-            case WON -> {
-                endRound();
-                this.round = new Round(word);
-                this.gameState = GameState.CONTINUE;
-            }
-            default -> {
-                if (this.round != null) {
-                    throw new ActiveRoundException();
-                } else {
-                    this.round = new Round(word);
-                    this.gameState = GameState.CONTINUE;
-                }
-            }
+            case WON -> handleWon(word);
+            default -> handleContinue(word);
         }
+    }
+
+    private void handleContinue(String word) {
+        if (this.round != null) {
+            throw new ActiveRoundException();
+        } else {
+            this.round = new Round(word);
+            this.gameState = GameState.CONTINUE;
+        }
+    }
+
+    private void handleWon(String word) {
+        endRound();
+        this.round = new Round(word);
+        this.gameState = GameState.CONTINUE;
     }
 
     public void makeGuess(String guess) {
@@ -60,15 +64,12 @@ public class Game {
 
     @SneakyThrows
     void handleGameState() {
-        switch (this.gameState) {
-            case LOST -> {
-                endRound();
-                throw new GameLostException();
-            }
-            case WON -> {
-                endRound();
-                throw new RoundWonException();
-            }
+        if (this.gameState == GameState.LOST) {
+            endRound();
+            throw new GameLostException();
+        } else if (this.gameState == GameState.WON) {
+            endRound();
+            throw new RoundWonException();
         }
     }
 
