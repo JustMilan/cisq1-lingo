@@ -94,8 +94,4 @@ public class Round {
     public GameState getGameState() {
         return gameState;
     }
-
-    public Long getId() {
-        return id;
-    }
 }

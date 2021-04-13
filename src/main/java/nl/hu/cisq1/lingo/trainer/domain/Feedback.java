@@ -157,8 +157,4 @@ public class Feedback {
     public void setMarks(List<Mark> marks) {
         this.marks = marks;
     }
-
-    public Long getId() {
-        return id;
-    }
 }
