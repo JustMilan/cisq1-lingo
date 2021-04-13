@@ -5,8 +5,11 @@ import nl.hu.cisq1.lingo.trainer.domain.exception.*;
 import nl.hu.cisq1.lingo.trainer.presentation.dto.*;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
+
 @RestController
 @RequestMapping("/trainer")
+@Transactional
 public class TrainerController {
     private final TrainerService service;
 
@@ -15,18 +18,18 @@ public class TrainerController {
     }
 
     @GetMapping("/game/all")
-    ResponseDTO allGames() {
+    public ResponseDTO allGames() {
         return new GameResponseDTO(service.allGames());
     }
 
     @PostMapping("/game/start")
-    ResponseDTO startGame() {
+    public ResponseDTO startGame() {
         return new TrainerResponseDTO(service.startNewGame());
     }
 
 
     @PostMapping("/game/startNewRound")
-    ResponseDTO startNewRound(@RequestParam Long gameId) {
+    public ResponseDTO startNewRound(@RequestParam Long gameId) {
         try {
             return new TrainerResponseDTO(service.startNewRound(gameId));
         } catch (ActiveRoundException e) {
@@ -35,7 +38,7 @@ public class TrainerController {
     }
 
     @PostMapping("/game/guess")
-    ResponseDTO guess(@RequestBody GuessDTO guess, @RequestParam Long gameId) {
+    public ResponseDTO guess(@RequestBody GuessDTO guess, @RequestParam Long gameId) {
         try {
             return new TrainerResponseDTO(service.guess(gameId, guess.guess));
         } catch (Exception e) {

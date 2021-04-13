@@ -1,6 +1,5 @@
 package nl.hu.cisq1.lingo.trainer.presentation.dto;
 
-import nl.hu.cisq1.lingo.trainer.domain.Feedback;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
 import nl.hu.cisq1.lingo.trainer.domain.GameState;
 import nl.hu.cisq1.lingo.trainer.domain.Hint;
@@ -18,14 +17,6 @@ public class TrainerResponseDTO implements ResponseDTO {
         this.gameState = game.getGameState();
         this.guessAmount = game.getRound().getGuesses().size();
         this.score = game.getPoints();
-    }
-
-    public TrainerResponseDTO(Long id, Hint hint, GameState gameState, Integer guessAmount, Feedback feedback, int score) {
-        this.id = id;
-        this.hint = hint;
-        this.gameState = gameState;
-        this.guessAmount = guessAmount;
-        this.score = score;
     }
 
     public Long getId() {
