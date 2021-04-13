@@ -5,8 +5,11 @@ import nl.hu.cisq1.lingo.trainer.domain.exception.*;
 import nl.hu.cisq1.lingo.trainer.presentation.dto.*;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
+
 @RestController
 @RequestMapping("/trainer")
+@Transactional
 public class TrainerController {
     private final TrainerService service;
 

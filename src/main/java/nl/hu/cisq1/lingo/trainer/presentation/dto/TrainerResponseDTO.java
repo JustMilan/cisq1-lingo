@@ -20,14 +20,6 @@ public class TrainerResponseDTO implements ResponseDTO {
         this.score = game.getPoints();
     }
 
-    public TrainerResponseDTO(Long id, Hint hint, GameState gameState, Integer guessAmount, Feedback feedback, int score) {
-        this.id = id;
-        this.hint = hint;
-        this.gameState = gameState;
-        this.guessAmount = guessAmount;
-        this.score = score;
-    }
-
     public Long getId() {
         return id;
     }
