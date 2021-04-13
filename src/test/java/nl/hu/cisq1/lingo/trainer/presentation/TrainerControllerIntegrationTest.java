@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.hu.cisq1.lingo.CiTestConfiguration;
 import nl.hu.cisq1.lingo.trainer.application.TrainerService;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
+import nl.hu.cisq1.lingo.trainer.domain.GameState;
+import nl.hu.cisq1.lingo.trainer.domain.exception.ActiveRoundException;
 import nl.hu.cisq1.lingo.trainer.presentation.dto.GuessDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,11 +16,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.transaction.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -93,7 +99,7 @@ class TrainerControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON));
         }
-        
+
         this.mockMvc.perform(MockMvcRequestBuilders.post(String.format("/trainer/game/startNewRound?id=%d", game.getId())))
                 .andExpect(status().isBadRequest());
     }
@@ -117,5 +123,21 @@ class TrainerControllerTest {
 
         this.mockMvc.perform(MockMvcRequestBuilders.post(String.format("/trainer/game/startNewRound?gameId=%d", game.getId())))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("active round test to be thrown when there is still an active round")
+    void activeRoundException() throws Exception {
+        Game game = this.service.startNewGame();
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/trainer/game/start"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post(String.format("/trainer/game/startNewRound?gameId=%d", game.getId())))
+                .andExpect(status().isOk());
+
+        Long gameId = game.getId();
+        assertThrows(ActiveRoundException.class, () -> service.startNewRound(gameId));
     }
 }

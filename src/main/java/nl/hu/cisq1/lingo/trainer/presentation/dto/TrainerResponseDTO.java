@@ -1,6 +1,5 @@
 package nl.hu.cisq1.lingo.trainer.presentation.dto;
 
-import nl.hu.cisq1.lingo.trainer.domain.Feedback;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
 import nl.hu.cisq1.lingo.trainer.domain.GameState;
 import nl.hu.cisq1.lingo.trainer.domain.Hint;
