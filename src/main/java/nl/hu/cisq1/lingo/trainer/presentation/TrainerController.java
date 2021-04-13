@@ -32,7 +32,7 @@ public class TrainerController {
     public ResponseDTO startNewRound(@RequestParam Long gameId) {
         try {
             return new TrainerResponseDTO(service.startNewRound(gameId));
-        } catch (ActiveRoundException e) {
+        } catch (Exception e) {
             return new ExceptionDTO(e.getMessage());
         }
     }
