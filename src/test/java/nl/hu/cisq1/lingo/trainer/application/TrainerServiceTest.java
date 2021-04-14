@@ -1,9 +1,9 @@
 package nl.hu.cisq1.lingo.trainer.application;
 
 import nl.hu.cisq1.lingo.trainer.application.exception.NoGameFoundException;
+import nl.hu.cisq1.lingo.trainer.application.exception.NoSuchWordException;
 import nl.hu.cisq1.lingo.trainer.data.SpringGameRepository;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
-import nl.hu.cisq1.lingo.trainer.domain.Round;
 import nl.hu.cisq1.lingo.words.application.WordService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +34,8 @@ class TrainerServiceTest {
         this.trainerService = new TrainerService(wordService, repository);
 
         when(this.wordService.provideRandomWord((anyInt()))).thenReturn("pizza");
+        when(this.wordService.wordExists("angel")).thenReturn(true);
+        when(this.wordService.wordExists("appel")).thenReturn(true);
         when(this.trainerService.startNewGame()).thenReturn(this.game);
         when(this.trainerService.allGames()).thenReturn(List.of(this.game));
         when(this.repository.save(any())).thenReturn(game);
@@ -68,13 +70,20 @@ class TrainerServiceTest {
     @Test
     @DisplayName("Game Does not exist when guess on non existing game")
     void nonExistingGameGuess() {
-        assertThrows(NoGameFoundException.class, () -> trainerService.guess(2L, "pizza"));
+        assertThrows(NoGameFoundException.class, () -> trainerService.guess(2L, "appel"));
     }
 
     @Test
     @DisplayName("new round should return game")
     void newRound() {
         assertNotNull(trainerService.startNewRound(1L));
+    }
+
+    @Test
+    @DisplayName("Guess with unknown word returns error")
+    void notKnownWordGuess() {
+        Long gameId = game.getId();
+        assertThrows(NoSuchWordException.class, () -> trainerService.guess(gameId, "pizea"));
     }
 
     @Test
