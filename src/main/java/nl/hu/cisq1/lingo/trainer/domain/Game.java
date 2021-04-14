@@ -1,6 +1,5 @@
 package nl.hu.cisq1.lingo.trainer.domain;
 
-import lombok.SneakyThrows;
 import nl.hu.cisq1.lingo.trainer.domain.exception.ActiveRoundException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.GameLostException;
 import nl.hu.cisq1.lingo.trainer.domain.exception.NoActiveRoundException;
@@ -32,7 +31,6 @@ public class Game {
         this.points = 0;
     }
 
-    @SneakyThrows
     public void newRound(String word) {
         switch (this.gameState) {
             case LOST -> throw new GameLostException();
@@ -62,7 +60,6 @@ public class Game {
         checkGameState();
     }
 
-    @SneakyThrows
     void handleGameState() {
         if (this.gameState == GameState.LOST) {
             endRound();
