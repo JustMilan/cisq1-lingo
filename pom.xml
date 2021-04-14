@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>lingo</name>
     <description>Lingo trainer for CISQ1 at the HU</description>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>15</java.version>
