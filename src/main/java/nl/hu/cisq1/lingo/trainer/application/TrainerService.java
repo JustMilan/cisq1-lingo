@@ -1,6 +1,7 @@
 package nl.hu.cisq1.lingo.trainer.application;
 
 import nl.hu.cisq1.lingo.trainer.application.exception.NoGameFoundException;
+import nl.hu.cisq1.lingo.trainer.application.exception.NoSuchWordException;
 import nl.hu.cisq1.lingo.trainer.data.SpringGameRepository;
 import nl.hu.cisq1.lingo.trainer.domain.Game;
 import nl.hu.cisq1.lingo.words.application.WordService;
@@ -35,6 +36,8 @@ public class TrainerService {
     }
 
     public Game guess(Long gameId, String guess) {
+        if (!this.wordService.wordExists(guess))
+            throw new NoSuchWordException(guess);
         var game = gameRepository.findById(gameId).orElseThrow(() -> new NoGameFoundException(gameId));
         game.makeGuess(guess);
         return gameRepository.save(game);
